@@ -5,5 +5,5 @@ import '../../models/login/LoginResponse.dart';
 abstract class ApiService {
   Future<LoginResponse> login({LoginRequest? body});
   Future<LoginResponse> refreshToken(String token);
-  Future<dynamic> getApi({String? param});
+  Future<dynamic> getApi(String url, {String? param});
 }

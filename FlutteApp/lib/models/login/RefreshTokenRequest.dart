@@ -1,8 +1,8 @@
-class RequestTokenRequest {
-  RequestTokenRequest({
+class RefreshTokenRequest {
+  RefreshTokenRequest({
       this.refreshToken,});
 
-  RequestTokenRequest.fromJson(dynamic json) {
+  RefreshTokenRequest.fromJson(dynamic json) {
     refreshToken = json['refreshToken'];
   }
   String? refreshToken;

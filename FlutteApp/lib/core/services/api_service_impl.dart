@@ -3,6 +3,7 @@ import 'package:demo_sccess_refresh_token_app/constants/constant_uri.dart';
 import 'package:demo_sccess_refresh_token_app/core/services/api_service.dart';
 import 'package:demo_sccess_refresh_token_app/data/local/token_store_local.dart';
 import 'package:demo_sccess_refresh_token_app/models/login/LoginRequest.dart';
+import 'package:demo_sccess_refresh_token_app/models/login/RefreshTokenRequest.dart';
 import 'package:demo_sccess_refresh_token_app/modules/login/login_view.dart';
 import 'package:get/get.dart';
 import '../../models/login/LoginResponse.dart';
@@ -28,22 +29,27 @@ class ApiServiceImpl extends ApiService {
     throw Exception("Login failed: ${response.body}");
   }
 
+
   @override
   Future<LoginResponse> refreshToken(String token) async {
     var url = Uri.parse(ConstantUri.refreshToken);
-    var responseTokenBody = new RefreshTokenRequest(refreshToken: token);
+
+    var responseTokenBody = RefreshTokenRequest(
+      refreshToken: token,
+    );
+
     var response = await httpClient.post(
       url,
-      body.JsonEncode(responseTokenBody!.toJson()),
-      headers: headers
+      headers: headers,
+      body: jsonEncode(responseTokenBody.toJson()),
     );
+
     if (response.statusCode == 200) {
-      var loginResponse = LoginResponse.fromJson(jsonDecode(response.body));
-      return loginResponse;
+      return LoginResponse.fromJson(jsonDecode(response.body));
     }
+
     return LoginResponse();
   }
-
   @override
   Future<dynamic> getApi(String url,{String? param}) async {
    dynamic responseBody;
@@ -52,7 +58,9 @@ class ApiServiceImpl extends ApiService {
    if(response.statusCode==200){
      responseBody=response.body;
    }else if(response.statusCode==401){
-     var refreshResponse = await refreshToken(TokenStoreLocal.getRefreshToken());
+     var refreshResponse = await refreshToken(
+         TokenStoreLocal.getRefreshToken()!
+     );
      if(refreshResponse.accessToken==null){
        Get.offAll(LoginView());
        return;
@@ -60,8 +68,10 @@ class ApiServiceImpl extends ApiService {
        responseBody=await getApiRetry(url,param:param);
      }
    }
-   return reponseBody;
+   return responseBody;
   }
+
+
   dynamic getApiRetry(String url,{String? param}) async {
     headers["Authorization"]="Bearer ${TokenStoreLocal.getAccessToken()}";
     var response=await httpClient.get(Uri.parse(url),headers: headers);

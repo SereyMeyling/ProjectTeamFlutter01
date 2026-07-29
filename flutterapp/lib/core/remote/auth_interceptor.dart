@@ -36,9 +36,17 @@ class AuthInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final is401 = err.response?.statusCode == 401;
-    final isRefreshCall = err.requestOptions.path == ConstantUri.refreshToken;
+    final path = err.requestOptions.path;
+    final isRefreshCall = path == ConstantUri.refreshToken;
+    // IMPORTANT: also exclude the login endpoint itself. A 401 here means
+    // "wrong credentials", not "my access token expired" — there's no
+    // access/refresh token to refresh yet at this point, so trying to
+    // refresh-and-retry just fails and force-logs-out, which was bouncing
+    // the user back to /login while already on /login (disposing the
+    // TextEditingControllers mid-use and crashing the screen).
+    final isLoginCall = path == ConstantUri.login;
 
-    if (!is401 || isRefreshCall) {
+    if (!is401 || isRefreshCall || isLoginCall) {
       handler.next(err);
       return;
     }

@@ -28,6 +28,10 @@ class LoginController extends GetxController {
 
     isLoading.value = true;
     try {
+      // NOTE: the backend's LoginReq DTO reads this field as "phoneNumber",
+      // not "username" — even though it's used to look up the user by
+      // username internally. Sending it as `username:` here left
+      // phoneNumber null on the wire and crashed the server with an NPE.
       final loginResponse = await apiService.login(
         body: LoginRequest(phoneNumber: username, password: password),
       );

@@ -21,5 +21,6 @@ class TokenStoreLocal {
     storage.remove(_refreshToken);
     storage.remove(_accessToken);
   }
+  static bool hasValidSession() => getAccessToken().isNotEmpty;
 
 }

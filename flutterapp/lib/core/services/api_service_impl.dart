@@ -1,80 +1,33 @@
-import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:demo_sccess_refresh_token_app/constants/constant_uri.dart';
+import 'package:demo_sccess_refresh_token_app/core/remote/dio_client.dart';
 import 'package:demo_sccess_refresh_token_app/core/services/api_service.dart';
-import 'package:demo_sccess_refresh_token_app/data/local/token_store_local.dart';
 import 'package:demo_sccess_refresh_token_app/models/login/LoginRequest.dart';
+import 'package:demo_sccess_refresh_token_app/models/login/LoginResponse.dart';
 import 'package:demo_sccess_refresh_token_app/models/login/RefreshTokenRequest.dart';
-import 'package:demo_sccess_refresh_token_app/modules/login/login_view.dart';
-import 'package:get/get.dart';
-import '../../models/login/LoginResponse.dart';
-import 'package:http/http.dart' as httpClient;
 
 class ApiServiceImpl extends ApiService {
-  var headers={
-    "Content-Type":"application/json"
-  };
+  ApiServiceImpl({Dio? dio}) : _dio = dio ?? DioClient().dio;
+  final Dio _dio;
+
   @override
   Future<LoginResponse> login({LoginRequest? body}) async {
-    var url = Uri.parse(ConstantUri.login);
-    var response = await httpClient.post(
-      url,
-      headers:headers,
-      body: jsonEncode(body!.toJson()),
-    );
-
-    if (response.statusCode == 200) {
-      return LoginResponse.fromJson(jsonDecode(response.body));
-    }
-
-    throw Exception("Login failed: ${response.body}");
+    final response = await _dio.post(ConstantUri.login, data: body?.toJson());
+    return LoginResponse.fromJson(response.data);
   }
-
 
   @override
   Future<LoginResponse> refreshToken(String token) async {
-    var url = Uri.parse(ConstantUri.refreshToken);
-
-    var responseTokenBody = RefreshTokenRequest(
-      refreshToken: token,
+    final response = await _dio.post(
+      ConstantUri.refreshToken,
+      data: RefreshTokenRequest(refreshToken: token).toJson(),
     );
-
-    var response = await httpClient.post(
-      url,
-      headers: headers,
-      body: jsonEncode(responseTokenBody.toJson()),
-    );
-
-    if (response.statusCode == 200) {
-      return LoginResponse.fromJson(jsonDecode(response.body));
-    }
-
-    return LoginResponse();
+    return LoginResponse.fromJson(response.data);
   }
+
   @override
-  Future<dynamic> getApi(String url,{String? param}) async {
-   dynamic responseBody;
-   headers["Authorization"]="Bearer ${TokenStoreLocal.getAccessToken()}";
-   var response = await httpClient.get(Uri.parse(url),headers: headers);
-   if(response.statusCode==200){
-     responseBody=response.body;
-   }else if(response.statusCode==401){
-     var refreshResponse = await refreshToken(
-         TokenStoreLocal.getRefreshToken()!
-     );
-     if(refreshResponse.accessToken==null){
-       Get.offAll(LoginView());
-       return;
-     }else{
-       responseBody=await getApiRetry(url,param:param);
-     }
-   }
-   return responseBody;
-  }
-
-
-  dynamic getApiRetry(String url,{String? param}) async {
-    headers["Authorization"]="Bearer ${TokenStoreLocal.getAccessToken()}";
-    var response=await httpClient.get(Uri.parse(url),headers: headers);
-    return response.body;
+  Future<dynamic> getApi(String url, {String? param}) async {
+    final response = await _dio.get(url);
+    return response.data;
   }
 }

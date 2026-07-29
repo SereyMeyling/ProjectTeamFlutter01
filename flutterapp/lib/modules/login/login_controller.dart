@@ -1,26 +1,21 @@
-import 'package:demo_sccess_refresh_token_app/core/services/api_service.dart';
-import 'package:demo_sccess_refresh_token_app/core/services/api_service_impl.dart';
-import 'package:demo_sccess_refresh_token_app/data/local/token_store_local.dart';
-import 'package:demo_sccess_refresh_token_app/models/login/LoginRequest.dart';
-import 'package:demo_sccess_refresh_token_app/modules/home/home_view.dart';
-import 'package:demo_sccess_refresh_token_app/modules/splash/splash_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:demo_sccess_refresh_token_app/core/services/api_service.dart';
+import 'package:demo_sccess_refresh_token_app/data/local/token_store_local.dart';
+import 'package:demo_sccess_refresh_token_app/models/login/LoginRequest.dart';
+import 'package:demo_sccess_refresh_token_app/routes/app_routes.dart';
 
 class LoginController extends GetxController {
-  var apiService = ApiServiceImpl();
+  LoginController({required this.apiService});
+  final ApiService apiService;
+
   var usernameController = TextEditingController().obs;
   var passwordController = TextEditingController().obs;
-  var isLoading=false.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-  }
+  var isLoading = false.obs;
 
   void onLogin() async {
-    String username = usernameController.value.text.trim();
-    String password = passwordController.value.text.trim();
+    final username = usernameController.value.text.trim();
+    final password = passwordController.value.text.trim();
 
     if (username.isEmpty) {
       Get.snackbar("Error", "Username is required!");
@@ -30,27 +25,32 @@ class LoginController extends GetxController {
       Get.snackbar("Error", "Password is required!");
       return;
     }
-    isLoading.value = true;
 
-      var loginResponse = await apiService.login(
-        body: LoginRequest(
-          phoneNumber: username,
-          password: password,
-        ),
+    isLoading.value = true;
+    try {
+      final loginResponse = await apiService.login(
+        body: LoginRequest(phoneNumber: username, password: password),
       );
+
       if (loginResponse.accessToken != null) {
+        TokenStoreLocal.setAcessToken(loginResponse.accessToken ?? "");
+        TokenStoreLocal.setRefreshToken(loginResponse.refreshToken ?? "");
         Get.snackbar("Success", "Login Successfully");
-        TokenStoreLocal.setAcessToken(loginResponse.accessToken??"");
-        TokenStoreLocal.setRefreshToken(loginResponse.refreshToken??"");
-        Get.offAll(HomeView());
+        Get.offAllNamed(AppRoutes.home);
       } else {
         Get.snackbar("Error", "Invalid response");
       }
-     isLoading.value = false;
+    } catch (e) {
+      Get.snackbar("Error", "Login failed: $e");
+    } finally {
+      isLoading.value = false;
+    }
   }
 
-
+  @override
+  void onClose() {
+    usernameController.value.dispose();
+    passwordController.value.dispose();
+    super.onClose();
+  }
 }
-
-//admin
-//Admin@1234

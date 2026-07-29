@@ -1,6 +1,6 @@
 import 'package:demo_sccess_refresh_token_app/data/local/token_store_local.dart';
 import 'package:demo_sccess_refresh_token_app/modules/home/home_controller.dart';
-import 'package:demo_sccess_refresh_token_app/modules/login/login_view.dart';
+import 'package:demo_sccess_refresh_token_app/routes/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -9,7 +9,7 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var controller = Get.put(HomeController());
+    var controller = Get.find<HomeController>();
     return Obx(() {
       return Scaffold(
         backgroundColor: Colors.white,
@@ -20,7 +20,7 @@ class HomeView extends StatelessWidget {
             IconButton(
               onPressed: () {
                 TokenStoreLocal.removeToken();
-                Get.offAll(LoginView());
+                Get.offAllNamed(AppRoutes.login);
               },
               icon: Icon(Icons.logout),
             ),

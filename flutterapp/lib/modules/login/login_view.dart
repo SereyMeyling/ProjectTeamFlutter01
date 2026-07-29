@@ -7,7 +7,7 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var controller = Get.put(LoginController());
+    var controller = Get.find<LoginController>();
     return Obx(() {
       return Scaffold(
         backgroundColor: Colors.white,
@@ -46,7 +46,7 @@ class LoginView extends StatelessWidget {
               ),
               SizedBox(height: 50),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   controller.onLogin();
                 },
                 child: Container(
@@ -57,9 +57,9 @@ class LoginView extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 15),
                   width: double.infinity,
                   child: Center(
-                    child:controller.isLoading.value  ?
-                    CircularProgressIndicator(color: Colors.red,):
-                      Text("Login", style: TextStyle(color: Colors.white)),
+                    child: controller.isLoading.value
+                        ? CircularProgressIndicator(color: Colors.red)
+                        : Text("Login", style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ),

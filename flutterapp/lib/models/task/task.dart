@@ -1,10 +1,10 @@
 enum Priority { low, medium, high }
 
 extension PriorityX on Priority {
-  String get value => name; // "low" | "medium" | "high"
+  String get value => name.toUpperCase();
 
   static Priority fromString(String? value) {
-    switch (value) {
+    switch (value?.toLowerCase()) {
       case 'high':
         return Priority.high;
       case 'low':
@@ -44,8 +44,12 @@ class Task {
       description: json['description'],
       priority: PriorityX.fromString(json['priority']),
       category: json['category'],
-      createdAt: DateTime.parse(json['createdAt']),
-      deadline: json['deadline'] != null ? DateTime.parse(json['deadline']) : null,
+      createdAt: json['createAt'] != null
+          ? DateTime.parse(json['createAt'])
+          : DateTime.now(),
+      deadline: json['deadline'] != null
+          ? DateTime.parse(json['deadline'])
+          : null,
       isCompleted: json['isCompleted'] ?? false,
     );
   }

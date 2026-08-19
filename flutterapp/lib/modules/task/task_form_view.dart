@@ -65,7 +65,9 @@ class _TaskFormViewState extends State<TaskFormView> {
       title: titleCtrl.text.trim(),
       description: descCtrl.text.trim().isEmpty ? null : descCtrl.text.trim(),
       priority: priority,
-      category: categoryCtrl.text.trim().isEmpty ? null : categoryCtrl.text.trim(),
+      category: categoryCtrl.text.trim().isEmpty
+          ? null
+          : categoryCtrl.text.trim(),
       createdAt: editingTask?.createdAt ?? DateTime.now(),
       deadline: deadline,
       isCompleted: editingTask?.isCompleted ?? false,
@@ -106,7 +108,10 @@ class _TaskFormViewState extends State<TaskFormView> {
               decoration: const InputDecoration(labelText: "Category"),
             ),
             const SizedBox(height: 16),
-            const Text("Priority", style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              "Priority",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             Wrap(
               spacing: 8,
               children: Priority.values.map((p) {
@@ -120,9 +125,11 @@ class _TaskFormViewState extends State<TaskFormView> {
             const SizedBox(height: 16),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              title: Text(deadline == null
-                  ? "No deadline"
-                  : "Deadline: ${deadline!.toLocal()}".split(' ').first),
+              title: Text(
+                deadline == null
+                    ? "No deadline"
+                    : "Deadline: ${deadline!.toLocal()}".split(' ').first,
+              ),
               trailing: const Icon(Icons.calendar_today),
               onTap: _pickDeadline,
             ),

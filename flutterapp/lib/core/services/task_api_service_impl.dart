@@ -11,10 +11,41 @@ class TaskApiServiceImpl extends TaskApiService {
   @override
   Future<List<Task>> getTasks() async {
     final response = await _dio.get(ConstantUri.taskBase);
-    final List data = response.data is List
-        ? response.data
-        : (response.data['content'] ?? response.data['data'] ?? []);
-    return data.map((e) => Task.fromJson(e)).toList();
+
+    print('TASK STATUS: ${response.statusCode}');
+    print('TASK RESPONSE: ${response.data}');
+
+    final responseData = response.data;
+
+    if (responseData is List) {
+      return responseData
+          .map((e) => Task.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+
+    if (responseData is Map<String, dynamic>) {
+      final data = responseData['data'];
+
+      if (data is Map<String, dynamic>) {
+        final content = data['content'];
+
+        if (content is List) {
+          return content
+              .map((e) => Task.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+      }
+
+      final content = responseData['content'];
+
+      if (content is List) {
+        return content
+            .map((e) => Task.fromJson(e as Map<String, dynamic>))
+            .toList();
+      }
+    }
+
+    return [];
   }
 
   @override

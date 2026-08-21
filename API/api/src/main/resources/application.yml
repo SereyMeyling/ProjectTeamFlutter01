@@ -43,8 +43,8 @@ post:
   free:
     app:
       jwtSecret: ebe8910a-08c0-11ed-861d-0242ac120002
-      jwtExpirationMs: 300000
-      jwtRefreshExpirationMs: 86400000
+      jwtExpirationMs: 86400000
+      jwtRefreshExpirationMs: 604800000
 
 springdoc:
   api-docs:

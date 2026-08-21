@@ -1,6 +1,14 @@
 .git
+.gitignore
+.gitattributes
 .gradle
-node_modules
+.idea
+.vscode
+*.iml
 build/
+bin/
+out/
 target/
 *.log
+upload/
+postgres/

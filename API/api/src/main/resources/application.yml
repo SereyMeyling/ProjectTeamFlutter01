@@ -3,7 +3,7 @@ spring:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/web_content_management_db
     username: postgres
-    password: 1234
+    password: Vanna110806@
 
   jpa:
     properties:
@@ -47,16 +47,15 @@ post:
       jwtRefreshExpirationMs: 86400000
 
 springdoc:
+  api-docs:
+    path: /v3/api-docs
   swagger-ui:
     path: /swagger-ui.html
     operationsSorter: method
     tagsSorter: alpha
     display-request-duration: true
     try-it-out-enabled: true
-  api-docs:
-    path: /v3/api-docs
   packages-to-scan: com.dinsaren.springbootjwtapi.controllers
-  paths-to-match: /**
 
 api:
   response-codes:

@@ -3,6 +3,9 @@ package com.dinsaren.springbootjwtapi.security;
 import com.dinsaren.springbootjwtapi.security.jwt.AuthEntryPointJwt;
 import com.dinsaren.springbootjwtapi.security.jwt.AuthTokenFilter;
 import com.dinsaren.springbootjwtapi.security.services.UserDetailsServiceImpl;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.AntPathMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -61,17 +65,15 @@ public class WebSecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/oauth/**",
-                                "/api/public/**",
-                                "/openapi/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
+                                "/api/v1/public/**",
                                 "/v3/api-docs/**",
-                                "/webjars/**"
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
                         ).permitAll()
                         .anyRequest().authenticated()
                 );
@@ -82,3 +84,4 @@ public class WebSecurityConfig {
         return http.build();
     }
 }
+

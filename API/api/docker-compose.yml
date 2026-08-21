@@ -1,4 +1,22 @@
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: web-content-db
+    restart: always
+    environment:
+      POSTGRES_DB: web_content_management_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Vanna110806@
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d web_content_management_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
   web-content-api:
     container_name: web-content-management-api
     image: web-content-management-api:latest
@@ -9,6 +27,15 @@ services:
       - "30033:30033"
     environment:
       - TZ=Asia/Phnom_Penh
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/web_content_management_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=Vanna110806@
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: unless-stopped
     volumes:
       - /opt/projects/teach/upload/images:/opt/projects/teach/upload/images
+
+volumes:
+  postgres_data:

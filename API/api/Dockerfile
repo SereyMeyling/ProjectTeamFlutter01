@@ -1,47 +1,52 @@
-# ============================================================
-# Stage 1: Build Stage
-# ============================================================
-FROM nexus.cambofreelance.com/docker-hosted/core/gradle:8.5-jdk21 AS builder
+# ─── Stage 1: Build ───
+FROM gradle:8.5-jdk21 AS builder
 
 WORKDIR /app
 
-ENV TZ=Asia/Phnom_Penh
-
-# 1. Copy Gradle configuration first (Optimizes Docker Layer Caching)
+# 1. Copy build config + wrapper first (layer caching)
 COPY gradle gradle
-COPY build.gradle settings.gradle gradle.properties ./
-COPY gradle.properties /root/.gradle/gradle.properties
+COPY gradlew build.gradle settings.gradle ./
 
-# 2. Download dependencies to cache layers
+# 2. Pre-download dependencies (cached unless build files change)
+# NOTE: use the image's own `gradle` binary, not the wrapper — the wrapper
+# is pinned to a Gradle version not preinstalled here, forcing a distribution
+# download that times out in restricted Docker build networks.
 RUN gradle dependencies --no-daemon || true
 
-# 3. Copy source code and build final executable JAR
+# 3. Copy source and build
 COPY src ./src
-RUN gradle bootJar -x test --no-daemon
+RUN gradle bootJar --no-daemon
 
-# ============================================================
-# Stage 2: Runtime Stage
-# ============================================================
-FROM nexus.cambofreelance.com/docker-hosted/core/eclipse-temurin:21-jdk-alpine
-
-WORKDIR /app
+# ─── Stage 2: Runtime ───
+FROM eclipse-temurin:21-jre-alpine
 
 ENV TZ=Asia/Phnom_Penh
 
-# Install tzdata for timezone support in Alpine
+# Alpine needs tzdata installed; set timezone
 RUN apk add --no-cache tzdata && \
-    cp /usr/share/zoneinfo/$TZ /etc/localtime && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone
 
-# Create non-root user for security best practices
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+# Create a non-root user and group
+RUN addgroup -S spring && adduser -S spring -G spring
 
-# Copy built executable JAR
-COPY --chown=appuser:appgroup --from=builder /app/build/libs/*[!plain].jar /app/app.jar
+WORKDIR /app
 
-# Match application.yml server port 30033
-EXPOSE 30033
+# Copy jar and give ownership to the non-root user
+COPY --from=builder --chown=spring:spring /app/build/libs/*.jar app.jar
 
-USER appuser
+USER spring
 
-ENTRYPOINT ["java", "-Duser.timezone=Asia/Phnom_Penh", "-jar", "/app/app.jar"]
+# Port Configuration Default is: 30033
+ARG APP_PORT=30033
+ENV SERVER_PORT=${APP_PORT}
+EXPOSE ${APP_PORT}
+
+# Optional: lets Docker/K8s know if the app is alive (needs spring-boot-actuator)
+#HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+#    CMD wget -qO- http://localhost:26010/actuator/health | grep -q '"UP"' || exit 1
+
+ENTRYPOINT ["java", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-Duser.timezone=Asia/Phnom_Penh", \
+  "-jar", "/app/app.jar"]

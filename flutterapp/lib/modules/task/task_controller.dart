@@ -30,7 +30,10 @@ class TaskController extends GetxController {
   Future<bool> addTask(Task task) async {
     try {
       final created = await taskApiService.createTask(task);
+
       tasks.add(created);
+      tasks.refresh();
+
       return true;
     } catch (e) {
       Get.snackbar("Error", "Failed to create task: $e");
@@ -41,8 +44,14 @@ class TaskController extends GetxController {
   Future<bool> editTask(Task task) async {
     try {
       final updated = await taskApiService.updateTask(task);
+
       final index = tasks.indexWhere((t) => t.id == updated.id);
-      if (index != -1) tasks[index] = updated;
+
+      if (index != -1) {
+        tasks[index] = updated;
+        tasks.refresh();
+      }
+
       return true;
     } catch (e) {
       Get.snackbar("Error", "Failed to update task: $e");
@@ -50,12 +59,18 @@ class TaskController extends GetxController {
     }
   }
 
-  Future<void> deleteTask(int id) async {
+  Future<bool> deleteTask(int id) async {
     try {
       await taskApiService.deleteTask(id);
+
       tasks.removeWhere((t) => t.id == id);
+
+      tasks.refresh();
+
+      return true;
     } catch (e) {
       Get.snackbar("Error", "Failed to delete task: $e");
+      return false;
     }
   }
 

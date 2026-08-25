@@ -9,6 +9,9 @@ class TaskController extends GetxController {
   var tasks = <Task>[].obs;
   var isLoading = false.obs;
 
+  var selectedFilter = Rxn<String>();
+  var searchQuery = ''.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -26,6 +29,54 @@ class TaskController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  void clearTasks() {
+    tasks.clear();
+    selectedFilter.value = null;
+  }
+
+  void selectFilter(String? filter) {
+    selectedFilter.value = filter;
+  }
+
+  List<String> get categories {
+    final set = <String>{};
+    for (final t in tasks) {
+      if (t.category != null && t.category!.trim().isNotEmpty) {
+        set.add(t.category!.trim());
+      }
+    }
+    final list = set.toList()..sort();
+    return list;
+  }
+
+  void updateSearch(String query) {
+    searchQuery.value = query;
+  }
+
+  List<Task> get filteredTasks {
+    final filter = selectedFilter.value;
+    List<Task> base;
+    if (filter == null) {
+      base = tasks.where((t) => !t.isCompleted).toList();
+    } else if (filter == '__finished__') {
+      base = tasks.where((t) => t.isCompleted).toList();
+    } else {
+      base = tasks
+          .where((t) => t.category == filter && !t.isCompleted)
+          .toList();
+    }
+
+    final query = searchQuery.value.trim().toLowerCase();
+    if (query.isEmpty) return base;
+    return base.where((t) => t.title.toLowerCase().contains(query)).toList();
+  }
+
+  int get allCount => tasks.where((t) => !t.isCompleted).length;
+  int get finishedCount => tasks.where((t) => t.isCompleted).length;
+
+  int countForCategory(String category) =>
+      tasks.where((t) => t.category == category && !t.isCompleted).length;
 
   Future<bool> addTask(Task task) async {
     try {

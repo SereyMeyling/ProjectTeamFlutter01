@@ -2,6 +2,7 @@ import 'package:demo_sccess_refresh_token_app/models/task/task.dart';
 import 'package:demo_sccess_refresh_token_app/modules/task/task_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:demo_sccess_refresh_token_app/constants/colors.dart';
 
 class TaskFormView extends StatefulWidget {
   const TaskFormView({super.key});
@@ -137,6 +138,10 @@ class _TaskFormViewState extends State<TaskFormView> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.darkNavy,
+                  foregroundColor: Colors.white,
+                ),
                 onPressed: isSaving ? null : _save,
                 child: isSaving
                     ? const CircularProgressIndicator(color: Colors.white)

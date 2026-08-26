@@ -1,3 +1,4 @@
+import 'package:demo_sccess_refresh_token_app/modules/task/task_controller.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:demo_sccess_refresh_token_app/core/services/api_service.dart';
@@ -6,6 +7,7 @@ import 'package:demo_sccess_refresh_token_app/models/login/LoginRequest.dart';
 import 'package:demo_sccess_refresh_token_app/routes/app_routes.dart';
 
 class LoginController extends GetxController {
+  final isPasswordHidden = true.obs;
   LoginController({required this.apiService});
   final ApiService apiService;
 
@@ -28,10 +30,6 @@ class LoginController extends GetxController {
 
     isLoading.value = true;
     try {
-      // NOTE: the backend's LoginReq DTO reads this field as "phoneNumber",
-      // not "username" — even though it's used to look up the user by
-      // username internally. Sending it as `username:` here left
-      // phoneNumber null on the wire and crashed the server with an NPE.
       final loginResponse = await apiService.login(
         body: LoginRequest(phoneNumber: username, password: password),
       );
@@ -39,6 +37,7 @@ class LoginController extends GetxController {
       if (loginResponse.accessToken != null) {
         TokenStoreLocal.setAcessToken(loginResponse.accessToken ?? "");
         TokenStoreLocal.setRefreshToken(loginResponse.refreshToken ?? "");
+        await Get.find<TaskController>().fetchTasks();
         Get.snackbar("Success", "Login Successfully");
         Get.offAllNamed(AppRoutes.home);
       } else {

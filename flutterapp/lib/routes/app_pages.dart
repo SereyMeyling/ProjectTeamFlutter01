@@ -1,4 +1,6 @@
 // app_pages.dart
+import 'package:demo_sccess_refresh_token_app/modules/register/register_binding.dart';
+import 'package:demo_sccess_refresh_token_app/modules/register/register_view.dart';
 import 'package:get/get.dart';
 import 'package:demo_sccess_refresh_token_app/middleware/auth_middleware.dart';
 import 'package:demo_sccess_refresh_token_app/modules/home/home_binding.dart';
@@ -15,6 +17,7 @@ class AppPages {
   static final pages = [
     GetPage(name: AppRoutes.splash, page: () => const SplashView(), binding: SplashBinding()),
     GetPage(name: AppRoutes.login, page: () => const LoginView(), binding: LoginBinding()),
+      GetPage(name: AppRoutes.register, page: () => const RegisterView(), binding: RegisterBinding()),
     GetPage(
       name: AppRoutes.home,
       page: () => const HomeView(),

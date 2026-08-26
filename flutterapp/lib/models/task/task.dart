@@ -36,7 +36,6 @@ class Task {
     this.deadline,
     this.isCompleted = false,
   });
-
   factory Task.fromJson(Map<String, dynamic> json) {
     return Task(
       id: json['id'],
@@ -50,7 +49,7 @@ class Task {
       deadline: json['deadline'] != null
           ? DateTime.parse(json['deadline'])
           : null,
-      isCompleted: json['isCompleted'] ?? false,
+      isCompleted: json['completed'] ?? json['isCompleted'] ?? false,
     );
   }
 

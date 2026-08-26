@@ -51,7 +51,8 @@ class TaskApiServiceImpl extends TaskApiService {
   @override
   Future<Task> createTask(Task task) async {
     final response = await _dio.post(ConstantUri.taskBase, data: task.toJson());
-    return Task.fromJson(response.data);
+    final data = response.data['data'];
+    return Task.fromJson(data as Map<String, dynamic>);
   }
 
   @override
@@ -60,7 +61,8 @@ class TaskApiServiceImpl extends TaskApiService {
       ConstantUri.taskById(task.id!),
       data: task.toJson(),
     );
-    return Task.fromJson(response.data);
+    final data = response.data['data'];
+    return Task.fromJson(data as Map<String, dynamic>);
   }
 
   @override
@@ -72,8 +74,9 @@ class TaskApiServiceImpl extends TaskApiService {
   Future<Task> toggleComplete(int id, bool isCompleted) async {
     final response = await _dio.patch(
       ConstantUri.taskComplete(id),
-      data: {"isCompleted": isCompleted},
+      data: {"completed": isCompleted},
     );
-    return Task.fromJson(response.data);
+    final data = response.data['data'];
+    return Task.fromJson(data as Map<String, dynamic>);
   }
 }

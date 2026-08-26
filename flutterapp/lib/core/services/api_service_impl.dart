@@ -1,3 +1,4 @@
+import 'package:demo_sccess_refresh_token_app/models/register/RegisterRequest.dart';
 import 'package:dio/dio.dart';
 import 'package:demo_sccess_refresh_token_app/constants/constant_uri.dart';
 import 'package:demo_sccess_refresh_token_app/core/remote/dio_client.dart';
@@ -28,6 +29,12 @@ class ApiServiceImpl extends ApiService {
   @override
   Future<dynamic> getApi(String url, {String? param}) async {
     final response = await _dio.get(url);
+    return response.data;
+  }
+
+  @override
+  Future<Map<String, dynamic>> register(RegisterRequest body) async {
+    final response = await _dio.post(ConstantUri.register, data: body.toJson());
     return response.data;
   }
 }
